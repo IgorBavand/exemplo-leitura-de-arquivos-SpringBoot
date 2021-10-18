@@ -1,8 +1,9 @@
 package com.exemplo.arquivos.igor.arquivos.services;
 
 import org.apache.commons.collections4.IteratorUtils;
-import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.sl.usermodel.Sheet;
+import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;  // automatically added to your code after importing
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Workbook;
@@ -11,6 +12,7 @@ import org.springframework.stereotype.Service;
 import com.exemplo.arquivos.igor.arquivos.models.*;
 
 import lombok.Cleanup;
+import org.w3c.dom.css.CSSFontFaceRule;
 
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -26,6 +28,8 @@ import javax.imageio.stream.FileImageInputStream;
 @Service
 public class ArquivoXlxsService{
 
+
+	//http://localhost:8050/api/arquivo-xlxs
 	
 	public List<ArquivoXlxs> lerArquivo() throws IOException{
 		List <ArquivoXlxs> arquivoXlxs = new ArrayList<>(); 
@@ -33,9 +37,10 @@ public class ArquivoXlxsService{
 		
 		try {
 			@Cleanup
-			FileInputStream file = new FileInputStream("/home/igornardenio/Downloads");
+			FileInputStream file = new FileInputStream("src/main/resources/Vendas.xlsx");
 			
-			Workbook workbook = new HSSFWorkbook(file);
+			Workbook workbook = new XSSFWorkbook(file);
+
 			
 			
 				org.apache.poi.ss.usermodel.Sheet sheet = workbook.getSheetAt(0);
@@ -47,7 +52,9 @@ public class ArquivoXlxsService{
 				rows.forEach(row ->{
 					//setando as celulas
 					List <Cell> cells = (List<Cell>)toList(row.cellIterator());
-			
+
+
+					//atribuindo os valores
 					ArquivoXlxs arquivoBuild = ArquivoXlxs.builder()
 							.data(cells.get(0).getDateCellValue())
 							.idLoja(cells.get(1).getStringCellValue())
@@ -62,13 +69,22 @@ public class ArquivoXlxsService{
 			
 			
 			Iterator <Row> iterator = sheet.iterator();
-			
-			
-			
+
+
+			for (ArquivoXlxs arquivo : arquivoXlxs){
+				System.out.println(arquivo.getData());
+				System.out.println(arquivo.getIdLoja());
+				System.out.println(arquivo.getProduto());
+				System.out.println(arquivo.getQuantidade());
+				System.out.println(arquivo.getValor());
+			}
+
 
 		}catch(FileNotFoundException e) {
 			System.out.println("arquivo nao encontrado "+e);
 		}
+
+
 
 		return arquivoXlxs;
 	}
@@ -77,7 +93,5 @@ public class ArquivoXlxsService{
 		return IteratorUtils.toList(iterator);
 	}
 	
-	public void imprimir(List<ArquivoXlxs> xlxs) {
-		xlxs.forEach(System.out::println);
-	}
+
 }
